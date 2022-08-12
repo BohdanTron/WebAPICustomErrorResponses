@@ -6,16 +6,18 @@ namespace WebAPI.Controllers
     [Route("[controller]")]
     public class ProductsController : ControllerBase
     {
+        private static readonly List<Product> Products = new();
+
         [HttpGet]
         public ActionResult Get()
         {
-            return Ok(Storage.Products);
+            return Ok(Products);
         }
 
         [HttpPost]
         public ActionResult Create([FromBody] Product product)
         {
-            Storage.Products.Add(product);
+            Products.Add(product);
             return Ok();
         }
     }

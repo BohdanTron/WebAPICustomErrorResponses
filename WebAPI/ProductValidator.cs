@@ -7,12 +7,10 @@ namespace WebAPI
         public ProductValidator()
         {
             RuleFor(p => p.Name).NotEmpty()
-                .WithErrorCode("name_required")
-                .WithMessage("Product name cannot be empty");
+                .WithError("name_required", "Product name cannot be empty");
 
             RuleFor(p => p.Quantity).GreaterThan(0)
-                .WithErrorCode("quantity_invalid")
-                .WithMessage("Quantity must be greater than 0");
+                .WithError("quantity_invalid", "Quantity must be greater than 0");
         }
     }
 }

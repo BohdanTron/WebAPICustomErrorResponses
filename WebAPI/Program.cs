@@ -1,4 +1,7 @@
-using FluentValidation;
+using System.Reflection;
+using System.Text.Json;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using WebAPI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,9 +9,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => JsonSerializer.Deserialize<Error>(e.ErrorMessage));
 
-builder.Services.AddScoped<IValidator<Product>, ProductValidator>();
+            return new BadRequestObjectResult(errors);
+        };
+    })
+    .AddFluentValidation(config =>
+    {
+        config.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+    });
+
+builder.Services.AddTransient<IValidatorInterceptor, UseCustomErrorModelInterceptor>();
 
 var app = builder.Build();
 
